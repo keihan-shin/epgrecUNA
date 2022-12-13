@@ -1,0 +1,12 @@
+diff -urN a/epgrec/trans_manager.php b/epgrec/trans_manager.php
+--- a/epgrec/trans_manager.php	2015-11-14 00:00:00.000000000 +0900
++++ b/epgrec/trans_manager.php	2022-11-24 00:33:15.558613645 +0900
+@@ -69,7 +69,7 @@
+ 			// 
+ 			$tran_start['ts'] = $sauce_ts[0]['path'];
+ 			$trans      = array('%FFMPEG%' => $settings->ffmpeg,
+-								'%TS%'     => '\''.$tran_start['ts'].'\'',
++								'%TS%'     => '\''.INSTALL_PATH.$settings->spool.'/'.$tran_start['ts'].'\'',
+ 								'%TRANS%'  => '\''.$tran_start['path'].'\'',
+ 								'%FORMAT%' => $RECORD_MODE[$tran_start['mode']]['format'],
+ 								'%VIDEO%'  => $RECORD_MODE[$tran_start['mode']]['video'],

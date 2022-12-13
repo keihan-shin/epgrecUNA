@@ -1,0 +1,33 @@
+diff -urN a/recpt1/pt1_dev.h b/recpt1/pt1_dev.h
+--- a/recpt1/pt1_dev.h	2022-03-10 19:02:47.000000000 +0900
++++ b/recpt1/pt1_dev.h	2022-11-30 05:14:17.195702500 +0900
+@@ -43,6 +43,14 @@
+     "/dev/pxw3u32",
+     "/dev/pxs3u20",  
+     "/dev/pxs3u0",  
++    "/dev/isdb2056video0",
++    "/dev/isdb2056video1",
++    "/dev/isdb2056video2",
++    "/dev/isdb2056video3",
++    "/dev/isdb6014video0",
++    "/dev/isdb6014video1",
++    "/dev/isdb6014video2",
++    "/dev/isdb6014video3",
+ 
+     "/dev/px4-DTV0",
+     "/dev/px4-DTV1",
+@@ -135,6 +143,14 @@
+     "/dev/pxw3u33",
+     "/dev/pxs3u21",  
+     "/dev/pxs3u1",  
++    "/dev/isdb2056video0",
++    "/dev/isdb2056video1",
++    "/dev/isdb2056video2",
++    "/dev/isdb2056video3",
++    "/dev/isdb6014video0",
++    "/dev/isdb6014video1",
++    "/dev/isdb6014video2",
++    "/dev/isdb6014video3",
+ 
+     "/dev/px4-DTV2",
+     "/dev/px4-DTV3",

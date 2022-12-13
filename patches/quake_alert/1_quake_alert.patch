@@ -1,0 +1,160 @@
+diff -urN a/epgrec/recomplete.php b/epgrec/recomplete.php
+--- a/epgrec/recomplete.php	2022-12-13 18:30:29.456561000 +0900
++++ b/epgrec/recomplete.php	2022-12-13 18:30:29.460561000 +0900
+@@ -10,6 +10,73 @@
+ include_once( INSTALL_PATH . '/reclib.php' );
+ include( INSTALL_PATH . '/powerReduce.inc.php' );
+ 
++// 地デジ低震度時警告対象震源地地域名
++// 対象震度は3以下
++// 細かく絞り込みたい場合は次のリンクから地域名をコピペすること http://www.data.jma.go.jp/svd/eqev/data/joho/shindo-name.html
++// 正式採用時に config.phpへ移動
++$QUAKE_HOMETOWN = array( '愛知県', '三重県', '岐阜県', '静岡県', '長野県', '滋賀県' );
++
++
++function quake_saerch( $starttime, $endtime )
++{
++	$quake_file = '/tmp/quake_info.list';
++	$delimiter  = '<tr><td nowrap><a href=./';
++	$trans_num  = array( '．'=>'.',
++					'０'=>'0', '１'=>'1', '２'=>'2', '３'=>'3', '４'=>'4', '５'=>'5', '６'=>'6', '７'=>'7', '８'=>'8', '９'=>'9',
++				);
++	$trans      = array( '弱'=>'-', '強'=>'+' );
++
++	if( file_exists( $quake_file ) ){
++		if( filemtime( $quake_file ) >= toTimestamp( $endtime )-60 )
++			$clean_list = file_get_contents( $quake_file );
++	}
++
++	if( !isset( $clean_list ) ){
++		$find_ps = file_get_contents( 'http://www.jma.go.jp/jp/quake/quake_local_index.html' );		// 気象庁
++		if( $find_ps === FALSE )
++			return '';
++		$clean_list = strstr( $find_ps, $delimiter );
++		file_put_contents( $quake_file, $clean_list );
++	}
++
++	$info_list = explode( $delimiter, $clean_list );
++	array_shift( $info_list );
++	$ret = '';
++	foreach( $info_list as $info ){
++		$info_year  = substr( $info, 0, 4 );
++		$info_month = substr( $info, 4, 2 );
++		$info_day   = substr( $info, 6, 2 );
++		$info_hour  = substr( $info, 8, 2 );
++		$info_min   = substr( $info, 10, 2 );
++		$catch_day  = substr( $info, 18, 2 );
++		$catch_hour = substr( $info, 20, 2 );
++		$catch_min  = substr( $info, 22, 2 );
++		$info_start = $info_year.'-'.$info_month.'-'.$info_day.' '.$catch_hour.':'.$catch_min.':00';
++		$telop_time = toTimestamp( $info_start );
++		if( $info_day !== $catch_day )
++			$telop_time -= 24 * 60 * 60;
++		$telop_time += 3 * 60;		// 伝達遅延分(適当)
++		$info_start  = toDatetime( $telop_time );
++
++		$info_end = toDatetime( $telop_time + 5*60 );
++		$info     = strtr( $info, $trans_num );
++		list( $dust, $catch_time, $place, $mag, $level ) = explode( '</td><td nowrap>', $info );
++		$level = rtrim( $level, "</td></tr>\r\n" );
++		$level = strtr( $level, $trans );
++//file_put_contents( '/tmp/debug.txt', $info.$info_start.' : '.$dust.' '.$catch_time.' '.$place.' '.$mag.' '.$level."\n\n", FILE_APPEND );
++		if( $info_end < $starttime )		// 
++			break;
++		if( $info_start <= $endtime ){
++			$tl = (int)( ( $telop_time - toTimestamp( $starttime ) ) / 60 );
++			if( $tl < 0 )
++				$tl = 0;
++			if( $ret !== '' )
++				$ret .= '|';
++			$ret .= $catch_time.':'.$level.':'.$place.':'.$tl;
++		}
++	}
++	return $ret;
++}
+ 
+ function get_logcmd( $sys_logs, $grep_word, $omit_word )
+ {
+@@ -205,6 +272,82 @@
+ 		if( filesize( $ts_path ) )
+ 		{
+ 			// 予約完了
++			// テロップ警報(地震)
++			$quake_info = quake_saerch( $rrec->starttime, $rrec->endtime );
++			if( $quake_info !== '' ){
++				if( $rrec->type === 'GR' ){
++					$ch_obj  = new DBRecord( CHANNEL_TBL );
++					$ch_name = $ch_obj->distinct( 'name', 'WHERE id='.$rrec->channel_id );
++					if( strpos( $ch_name[0], 'NHK' )!==FALSE || strpos( $ch_name[0], 'ＮＨＫ' )!==FALSE )
++						$nhk_chk = TRUE;
++					else
++						$nhk_chk = FALSE;
++				}
++				$q_list = explode( '|', $quake_info );
++				$q_log  = '';
++				$q_dsc  = '';
++				foreach( $q_list as $quake ){
++					list( $catch_time, $level, $place, $tl ) = explode( ':', $quake );
++					switch( $rrec->type ){
++						case 'BS';
++							switch( $rrec->channel_disc ){
++								case 'BS_171':	// BS JAPAN
++								case 'BS_101':	// NHK BS1
++								case 'BS_102':	// NHK BS1
++								case 'BS_103':	// NHK BSプレミアム
++								case 'BS_104':	// NHK BSプレミアム
++									// 緊急地震速報のみ
++									if( $level[6] < '5' )
++										continue 3;
++									break;
++								case 'BS_141':	// BS日テレ"
++								case 'BS_151':	// BS朝日1"
++								case 'BS_161':	// BS-TBS"
++								case 'BS_181':	// BSフジ・181"
++								case 'BS_222':	// BS12トゥエルビ
++									// 無料民放(BS12は未確認)
++									if( $level[6] < '3' )
++										continue 3;
++									break;
++								default:
++									// 主に有料Ch(放送大学は出力しないはずだが忘れる)
++									if( $level[6] < '4' )
++										continue 3;
++									break;
++							}
++							break;
++						case 'GR':
++							if( $nhk_chk )
++								break;
++							if( $level[6] <= '3' ){
++								// 地デジ受信地域は低震度でも警告を出す
++								foreach( $QUAKE_HOMETOWN as $town_name ){
++									if( strpos( $place, $town_name ) )
++										break 2;
++								}
++								continue 2;
++							}
++							break;
++						case 'CS':
++						case 'EX':
++						default:
++							continue 2;
++					}
++					$q_log = '<br>'.$tl.'分 ('.$catch_time.' '.$level.' '.$place.')'.$q_log;
++					if( $q_dsc !== '' )
++						$q_dsc = ':'.$q_dsc;
++					$q_dsc = 'T'.$tl.$q_dsc;
++//					$rrec->program_id  = ( $tl + 1 ) * -1;		// テロップ位置 program_idは、録画後使用しないので流用
++				}
++				if( $q_dsc !== '' ){
++					$log_level = EPGREC_WARN;
++					if( $syslog === '' )
++						$rev_ds = htmlspecialchars( $rev_ds );
++					$syslog           .= '<br>以下の位置に地震テロップがキャプチャーされている可能性があります'.$q_log;
++					$rrec->description = '['.$q_dsc.'] '.$rrec->description;
++				}
++			}
++			// 終了状態判別
+ 			if( $get_time >= toTimestamp($rrec->endtime) ){
+ 				reclog( $rev_id.' 録画完了] '.$rev_ds.$syslog, $log_level );
+ 				$rec_success = TRUE;

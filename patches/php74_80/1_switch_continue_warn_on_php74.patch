@@ -1,0 +1,59 @@
+diff -urN a/epgrec/reservationTable.php b/epgrec/reservationTable.php
+--- a/epgrec/reservationTable.php	2015-06-29 09:00:00.000000000 +0900
++++ b/epgrec/reservationTable.php	2022-11-24 01:12:11.487828430 +0900
+@@ -54,7 +54,7 @@
+ 					// 予約終了化(録画済一覧に終了状態を出すようにしたいね)
+ 					$wrt_set['complete'] = 1;
+ 					$res_obj->force_update( $r['id'], $wrt_set );
+-					continue;
++					break;
+ 				case 1:	// トランスコード中
+ 					$arr['status'] = 1;
+ 					break;
+diff -urN a/epgrec/shepherd.php b/epgrec/shepherd.php
+--- a/epgrec/shepherd.php	2015-01-18 00:00:00.000000000 +0900
++++ b/epgrec/shepherd.php	2022-11-24 01:12:11.487828430 +0900
+@@ -68,9 +68,9 @@
+ 					// 予約終了化
+ 					$wrt_set['complete'] = 1;
+ 					$res_obj->force_update( $r['id'], $wrt_set );
+-					continue;
++					break;
+ 				case 1:	// トランスコード中
+-					continue;
++					break;
+ 				case 2:	// 別ユーザーでAT登録
+ 					break;
+ 			}
+diff -urN a/epgrec/storeProgram.inc.php b/epgrec/storeProgram.inc.php
+--- a/epgrec/storeProgram.inc.php	2015-04-08 20:00:00.000000000 +0900
++++ b/epgrec/storeProgram.inc.php	2022-11-24 01:12:11.491828565 +0900
+@@ -55,16 +55,16 @@
+ 				switch( $wave_type ){
+ 					case 'GR':
+ 						if( !(boolean)$val->typeGR )
+-							continue;
++							break;
+ 						break;
+ 					case 'BS':
+ 					case 'CS':
+ 						if( !(boolean)$val->typeBS && !(boolean)$val->typeCS )
+-							continue;
++							break;
+ 						break;
+ 					case 'EX':
+ 						if( !(boolean)$val->typeEX )
+-							continue;
++							break;
+ 						break;
+ //					case '*':
+ //						break;
+@@ -382,7 +382,7 @@
+ 						case 0:
+ 							// 冒頭の余分な部分をpf1つ前を残して切り捨て
+ 							if( strcmp( $records[$cnt]['starttime'], $event_pf[0]['starttime'] ) < 0 )
+-								continue;
++								break;
+ 							else{
+ 								$pf_trim = 1;
+ 								if( $cnt > 0 ){

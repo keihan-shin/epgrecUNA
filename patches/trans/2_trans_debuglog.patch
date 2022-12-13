@@ -1,0 +1,26 @@
+diff -urN a/epgrec/settings/trans_config.php.sample b/epgrec/settings/trans_config.php.sample
+--- a/epgrec/settings/trans_config.php.sample	2014-11-23 20:00:00.000000000 +0900
++++ b/epgrec/settings/trans_config.php.sample	2022-11-24 06:33:32.021552433 +0900
+@@ -61,6 +61,7 @@
+ define( 'TRANS_STOP_TIMEZONE', '00:00-03:00' );		// (未対応)トランスコード禁止時間帯
+ define( 'MOVIE_VIEWER', 'vlc' );					// (未対応)視聴ソフト名(トランスコード停止に使用)
+ define( 'TRANS_SUCCESS_CODE', 0 );					// トランスコーダー成功終了値(シェルスクリプト使用時などで終了値を受け取れない場合は FALSEにする)
++define( 'DEBUG_PRINT_TRANS_CMD', 0 );					// トランスコード時のコマンドをデバッグログに出力する（1で出力する）
+ 
+ 
+ // トランスコードストリーム視聴関連
+diff -urN a/epgrec/trans_manager.php b/epgrec/trans_manager.php
+--- a/epgrec/trans_manager.php	2022-11-24 06:33:52.602175795 +0900
++++ b/epgrec/trans_manager.php	2022-11-24 06:28:58.857302477 +0900
+@@ -94,6 +94,11 @@
+ 							1 => array( 'file','/dev/null','w' ),
+ 							2 => array( 'file','/dev/null','w' ),
+ 			);
++			if ( DEBUG_PRINT_TRANS_CMD == 1 ) {
++				reclog("transcode start. cmd = " . $cmd_set .", "
++					. "descspec = " . var_dump($descspec) . ", "
++					. "pipes = " . var_dump($pipes), EPGREC_DEBUG);
++			}
+ 			$tran_start['pro'] = proc_open( $cmd_set, $descspec, $pipes, INSTALL_PATH.$settings->spool );
+ 			if( is_resource( $tran_start['pro'] ) ){
+ 				reclog( $tran_start['hd'].'開始'.$tran_start['tl'] );

@@ -1,0 +1,54 @@
+diff -urN a/epgrec/programTable.php b/epgrec/programTable.php
+--- a/epgrec/programTable.php	2015-12-05 20:00:00.000000000 +0900
++++ b/epgrec/programTable.php	2022-11-24 01:18:40.804508836 +0900
+@@ -590,18 +590,18 @@
+ 	$smarty->assign( 'k_sub_genre', $sub_genre );
+ 	$smarty->assign( 'first_genre', $first_genre );
+ 	$smarty->assign( 'types', $types );
+-	$smarty->assign( 'kw_enable', $kw_enable );
+-	$smarty->assign( 'overlap', $overlap );
+-	$smarty->assign( 'k_typeGR', $typeGR );
+-	$smarty->assign( 'k_typeBS', $typeBS );
+-	$smarty->assign( 'k_typeCS', $typeCS );
+-	$smarty->assign( 'k_typeEX', $typeEX );
++	$smarty->assign( 'kw_enable', $kw_enable ? 1 : 0 );
++	$smarty->assign( 'overlap', $overlap ? 1 : 0 );
++	$smarty->assign( 'k_typeGR', $typeGR ? 1 : 0 );
++	$smarty->assign( 'k_typeBS', $typeBS ? 1 : 0  );
++	$smarty->assign( 'k_typeCS', $typeCS ? 1 : 0 );
++	$smarty->assign( 'k_typeEX', $typeEX ? 1 : 0 );
+ 	$smarty->assign( 'type_names', $type_names );
+ 	$smarty->assign( 'search' , $search );
+-	$smarty->assign( 'use_regexp', $use_regexp );
+-	$smarty->assign( 'ena_title', $ena_title );
+-	$smarty->assign( 'ena_desc', $ena_desc );
+-	$smarty->assign( 'collate_ci', $collate_ci );
++	$smarty->assign( 'use_regexp', $use_regexp ? 1 : 0 );
++	$smarty->assign( 'ena_title', $ena_title ? 1 : 0 );
++	$smarty->assign( 'ena_desc', $ena_desc ? 1 : 0 );
++	$smarty->assign( 'collate_ci', $collate_ci ? 1 : 0 );
+ 	$smarty->assign( 'stations', $stations );
+ 	$smarty->assign( 'k_station', $channel_id );
+ 	$smarty->assign( 'k_station_name', $stations[$id_selected]['name'] );
+@@ -617,7 +617,7 @@
+ 	$smarty->assign( 'keyword_id', $keyword_id );
+ 	$smarty->assign( 'sft_start', $sft_start );
+ 	$smarty->assign( 'sft_end', $sft_end );
+-	$smarty->assign( 'discontinuity', $discontinuity );
++	$smarty->assign( 'discontinuity', $discontinuity ? 1 : 0 );
+ 	$smarty->assign( 'priority', $priority );
+ 	$smarty->assign( 'filename', $filename );
+ 	$smarty->assign( 'defaultname', $settings->filename_format );
+@@ -625,9 +625,9 @@
+ 	$smarty->assign( 'directory', $directory );
+ 	$smarty->assign( 'dir_collection', $dir_collection );
+ 	$smarty->assign( 'criterion_dura', $criterion_dura );
+-	$smarty->assign( 'criterion_enab', $criterion_enab );
+-	$smarty->assign( 'rest_alert', $rest_alert );
+-	$smarty->assign( 'smart_repeat', $smart_repeat );
++	$smarty->assign( 'criterion_enab', $criterion_enab ? 1 : 0 );
++	$smarty->assign( 'rest_alert', $rest_alert ? 1 : 0 );
++	$smarty->assign( 'smart_repeat', $smart_repeat ? 1 : 0 );
+ 	$smarty->assign( 'split_time', transTime($split_time) );
+ 	$smarty->assign( 'trans_set', $trans_set );
+ 	$smarty->display('programTable.html');

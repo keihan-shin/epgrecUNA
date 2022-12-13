@@ -1,0 +1,41 @@
+diff -urN a/epgrec/Smarty/Smarty_Compiler.class.php b/epgrec/Smarty/Smarty_Compiler.class.php
+--- a/epgrec/Smarty/Smarty_Compiler.class.php	2022-12-13 19:35:53.296813000 +0900
++++ b/epgrec/Smarty/Smarty_Compiler.class.php	2022-12-13 19:39:04.723097994 +0900
+@@ -261,13 +261,30 @@
+         $this->_folded_blocks = $match;
+         reset($this->_folded_blocks);
+ 
+-        /* replace special blocks by "{php}" */
+-        $source_content = preg_replace_callback($search, create_function ('$matches', "return '"
+-                                       . $this->_quote_replace($this->left_delimiter) . 'php'
+-                                       . "' . str_repeat(\"\n\", substr_count('\$matches[1]', \"\n\")) .'"
+-                                       . $this->_quote_replace($this->right_delimiter)
+-                                       . "';")
+-                                       , $source_content);
++        if(PHP_VERSION_ID < 50207) {
++            /* replace special blocks by "{php}" */
++            $source_content = preg_replace($search.'e', "'"
++                                           . $this->_quote_replace($this->left_delimiter) . 'php'
++                                           . "' . str_repeat(\"\n\", substr_count('\\0', \"\n\")) .'"
++                                           . $this->_quote_replace($this->right_delimiter)
++                                           . "'"
++                                           , $source_content);
++        } elseif(PHP_VERSION_ID < 70200) {
++            // PHP 5.2.7 以上 PHP 7.2.0 未満
++            $source_content = preg_replace_callback($search, create_function ('$matches', "return '"
++                                            . $this->_quote_replace($this->left_delimiter) . 'php'
++                                            . "' . str_repeat(\"\n\", substr_count('\$matches[1]', \"\n\")) .'"
++                                            . $this->_quote_replace($this->right_delimiter)
++                                            . "';")
++                                            , $source_content);
++        } else {
++            // PHP 7.2 以降
++            $source_content = preg_replace_callback($search
++                                            , function ($matches) {return $this->_quote_replace($this->left_delimiter) . 'php'
++                                            . str_repeat("\n", substr_count($matches[0], "\n"))
++                                            . $this->_quote_replace($this->right_delimiter);}
++                                            , $source_content);         
++        }
+ 
+         /* Gather all template tags. */
+         preg_match_all("~{$ldq}\s*(.*?)\s*{$rdq}~s", $source_content, $_match);

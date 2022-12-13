@@ -1,0 +1,30 @@
+diff -urN a/epgrec/templates/programTable.html b/epgrec/templates/programTable.html
+--- a/epgrec/templates/programTable.html	2016-04-11 23:00:00.000000000 +0900
++++ b/epgrec/templates/programTable.html	2022-11-24 01:17:14.673765645 +0900
+@@ -663,7 +663,7 @@
+ {/if}
+ {if $prg_cnt >= 300}<div>表示最大300件まで</div>{/if}
+ {if $do_keyword}
+-{if $k_category != 15 || $k_sub_genre>=0x3f }
++{if $k_category != 15 || $k_sub_genre>=63 }
+ {if $do_keyword || $prg_cnt < 300}
+ <div>
+ <fieldset>
+@@ -676,7 +676,7 @@
+   <b>　局:</b>{$k_station_name}
+   <b>　ジャンル({if $first_genre == 1}第一{else}全保持{/if}):</b>{if $k_category == 0}すべて{else}{$k_category_name}{/if}
+   <b>サブジャンル:</b><script type="text/javascript">sub_genre_view({$k_category}, {$k_sub_genre});</script>
+-  <b>　曜日:</b>{if $weekofday == 0x7f}なし{else}{$wds_name}{/if}
++  <b>　曜日:</b>{if $weekofday == 127}なし{else}{$wds_name}{/if}
+   <b>　時間帯:</b>{if $prgtime == 24}なし{else}{$prgtime}時から{$period}時間{/if}
+   <b>　件数:</b>{$prg_cnt}<br>
+ </fieldset>
+@@ -752,7 +752,7 @@
+ 	A	区切り文字列(省略可、その場合はn2も省略すること)	
+ 	n2	文字列Aで区切られた区画の対象位置(省略可 その場合は先頭区画を対象とする)
+ 		総数を超える場合は最後尾が対象となる。">番組タイトル部分取得</td>
+- <th colspan="2" title="">以下は%PROCESS()%用</td>
++ <th colspan="2" title="">以下は%PROCESS()%用</th>
+  <td class="label" onClick="setFormInput('%CH%')">%CH%</td><td class="desc" title="ex.18 BS15_0 CS14">物理チャンネル</td>
+  <td class="label" onClick="setFormInput('%MONTH%')">%MONTH%</td><td class="desc">開始月</td>
+  <td class="label" onClick="setFormInput('%ET%')">%ET%</td><td class="desc" title="ex.200907201830">終了日時</td>
