@@ -7,11 +7,6 @@
 # https://qiita.com/akiyuki_cxx/items/b0dd17e866bb8b0032ed
 PATCH_PHP74=1
 
-# epgrecUNA に PHP 8.0 対応パッチを適応する(1) / 適応しない(0)
-#
-# 2022/12 現在、パッチは揃っていない。後日揃えるためにディレクトリ等の整備を行ったのみ。
-PATCH_PHP80=0
-
 # 地震テロップ混入をログで知らせるパッチを適応する(1) / 適応しない(0)
 #
 # 作者 katauna 氏より「自己責任」扱いの記載があるもの
@@ -36,11 +31,6 @@ PATCH_RECPT1=0
 # 何らかの事情でリバースパッチを当てて元に戻したい場合
 REVERSE_PATCH=0
 
-# epgrecUNA に PHP7.4 + 8.0 共通対応パッチを適応する(1) / 適応しない(0)
-#
-# PHP 7.4 用パッチか 8.0 パッチのフラグを立てたら有効化する、触らなくて良い
-PATCH_PHP74_80=0
-
 function do_patch () {
     echo ""
     echo "patching `basename $1`"
@@ -55,15 +45,6 @@ function do_patch () {
     done
 }
 
-if [ $PATCH_PHP74 -eq 1 ]; then
-    if [ $PATCH_PHP80 -eq 1 ]; then
-        echo "'PATCH_PHP74' フラグと 'PATCH_PHP80' フラグは併用できません。"
-        echo "処理を中断します。"
-        
-        exit 1
-    fi
-fi
-
 if [ "$1" == "--reverse" ]; then
     REVERSE_PATCH=1
 fi
@@ -77,22 +58,6 @@ fi
 if [ $PATCH_PHP74 -eq 1 ]; then
     pushd ./epgrecUNA  > /dev/null 2>&1
     do_patch ../patches/php74
-    popd  > /dev/null 2>&1
-
-    PATCH_PHP74_80=1
-fi
-
-if [ $PATCH_PHP80 -eq 1 ]; then
-    pushd ./epgrecUNA  > /dev/null 2>&1
-    do_patch ../patches/php80
-    popd  > /dev/null 2>&1
-    
-    PATCH_PHP74_80=1
-fi
-
-if [ $PATCH_PHP74_80 -eq 1 ]; then
-    pushd ./epgrecUNA  > /dev/null 2>&1
-    do_patch ../patches/php74_80
     popd  > /dev/null 2>&1
 fi
 
