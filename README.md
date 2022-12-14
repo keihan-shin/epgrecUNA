@@ -79,6 +79,8 @@ PHP 8.0.26 にて epgrecUNA の動作検証を行いましたが複数の不具�
 
 ※ なぜか Mirakurun などが動かない環境はあるので未だ当方は epgrecUNA を使っていますが、少数派だと思います。
 
+*あっ僕んちじゃないですよ。友達に頼まれたんです。なので NHK こっちくんな。*
+
 #### 【任意】patches/quake_alert 
 
 下記 quake_alert_fix1.tar.gz を解凍したもの。epgrec/recomplete.php を置換するだけです。
